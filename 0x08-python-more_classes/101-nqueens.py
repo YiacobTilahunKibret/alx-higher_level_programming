@@ -1,54 +1,81 @@
 #!/usr/bin/python3
-"""Standalone module to solve the nqueens problem"""
+"""Module is to solve the N-Queens challenge problem"""
+from sys import argv
 
 
-import sys
+def checkspot(board, r, c):
+    n = len(board) - 1
+    if board[r][c]:
+        return 0
+    for row in range(r):
+        if board[row][c]:
+            return 0
+    i = r
+    j = c
+    while i > 0 and j > 0:
+        i -= 1
+        j -= 1
+        if board[i][j]:
+            return 0
+    i = r
+    j = c
+    while i > 0 and j < n:
+        i -= 1
+        j += 1
+        if board[i][j]:
+            return 0
+    return 1
 
 
-def nqueens(size):
-    """Initial setup before recursive call"""
-    if type(size) is not int:
-        print("N must be a number")
-        return
-    if size < 4:
-        print("N must be at least 4")
-        return
-    queens = [0] * size
+def initboard(n=4):
+    b = []
+    for r in range(n):
+        b.append([0 for c in range(n)])
+    return b
 
-    def printsolution(queens):
-        print("[[0, ", queens[0], "]", sep="", end="")
-        for y, x in enumerate(queens[1:], 1):
-            print(", [", y, ", ", x, "]", sep="", end="")
-        print("]")
 
-    def queencalc(queen):
-        """Recursive call queen position validator"""
-        for x in range(size):
-            """horizontal board positions per queen"""
-            nextx = 0
-            for y in range(queen):
-                qx = queens[y]
-                if x == qx or x + queen == qx + y or x - queen == qx - y:
-                    nextx = 1
-                    break
-            if nextx == 1:
-                nextx == 0
+def findsoln(board, row):
+    for col in range(len(board)):
+        if checkspot(board, row, col):
+            board[row][col] = 1
+            if row == len(board) - 1:
+                print(convtosoln(board))
+                board[row][col] = 0
                 continue
-            if queen != size - 1:
-                queens[queen + 1] = 0
-                queens[queen] = x
-                queencalc(queen + 1)
+            if findsoln(board, row + 1):
+                return board
             else:
-                queens[queen] = x
-                printsolution(queens)
-    queencalc(0)
+                board[row][col] = 0
+    return None
 
-if len(sys.argv) != 2:
-    print("Usage: nqueens N")
-    exit()
-try:
-    size = int(sys.argv[1])
-except (ValueError, TypeError):
-    print("N must be a number")
-    exit()
-nqueens(size)
+
+def convtosoln(board):
+    soln = []
+    n = len(board)
+    for r in range(n):
+        for c in range(n):
+            if board[r][c]:
+                soln.append([r, c])
+    return soln
+
+
+def nqueens(n=4):
+    for col in range(n):
+        board = initboard(n)
+        board[0][col] = 1
+        findsoln(board, 1)
+
+
+if __name__ == "__main__":
+    if len(argv) != 2:
+        print("Usage: nqueens N")
+        exit(1)
+    try:
+        n = int(argv[1])
+    except:
+        print("N must be a number")
+        exit(1)
+    if n < 4:
+        print("N must be at least 4")
+        exit(1)
+    nqueens(n)
