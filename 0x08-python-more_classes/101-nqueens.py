@@ -1,63 +1,54 @@
 #!/usr/bin/python3
-from sys import argv
-
-"""
-This modules finds all solutions for N queens problem
-"""
+"""Standalone module to solve the nqueens problem"""
 
 
-class Queen:
-    """
-    Class defined as Queen to solve nQueens problem
-    using recursion
-    """
-    def can_move(self, x, y, right):
+import sys
 
-        """
-        Function to see if queen can move in the vaild constraint
-        column provided
-        """
-        for a in range(x):
-            if right[a] == y:
-                return (False)
-            if abs(right[a] - y) == (x - a):
-                return (False)
-        return (True)
 
-    def solution(self, n, N, right):
-        """
-        function to find all the right combos that can happen
-        using recursion.
-        """
-        if n == N:
-            print("[", end="")
-            for j in range(N):
-                print("[{}, {}]".format(j, right[j]), end="")
-                if j < N - 1:
-                    print(", ", end="")
-            print("]")
-            return
-
-        for j in range(N):
-            if self.can_move(n, j, right):
-                right[n] = j
-                self.solution(n + 1, N, right)
-
-if __name__ == "__main__":
-    count = len(argv)
-
-    if count != 2:
-        print("Usage: nqueens N")
-        exit(1)
-    else:
-        try:
-            N = int(argv[1])
-        except:
-            print("N must be a number")
-            exit(1)
-    if N < 4:
+def nqueens(size):
+    """Initial setup before recursive call"""
+    if type(size) is not int:
+        print("N must be a number")
+        return
+    if size < 4:
         print("N must be at least 4")
-        exit(1)
+        return
+    queens = [0] * size
 
-    final = Queen()
-    final.solution(0, N, [None for i in range(N)])
+    def printsolution(queens):
+        print("[[0, ", queens[0], "]", sep="", end="")
+        for y, x in enumerate(queens[1:], 1):
+            print(", [", y, ", ", x, "]", sep="", end="")
+        print("]")
+
+    def queencalc(queen):
+        """Recursive call queen position validator"""
+        for x in range(size):
+            """horizontal board positions per queen"""
+            nextx = 0
+            for y in range(queen):
+                qx = queens[y]
+                if x == qx or x + queen == qx + y or x - queen == qx - y:
+                    nextx = 1
+                    break
+            if nextx == 1:
+                nextx == 0
+                continue
+            if queen != size - 1:
+                queens[queen + 1] = 0
+                queens[queen] = x
+                queencalc(queen + 1)
+            else:
+                queens[queen] = x
+                printsolution(queens)
+    queencalc(0)
+
+if len(sys.argv) != 2:
+    print("Usage: nqueens N")
+    exit()
+try:
+    size = int(sys.argv[1])
+except (ValueError, TypeError):
+    print("N must be a number")
+    exit()
+nqueens(size)
